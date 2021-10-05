@@ -19,7 +19,7 @@ class ArticleTypeHeaderAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('title', 'comments_number')
+    list_display = ('title', 'summary', 'articles_type', 'comments_number', 'status')
 
     def comments_number(self, obj):
         a = (o for o in obj.comments.filter(read=True))

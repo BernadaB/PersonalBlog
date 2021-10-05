@@ -1,3 +1,5 @@
+import datetime
+from django.utils import timezone
 from django.contrib.auth.models import User
 from taggit.managers import TaggableManager
 from django.urls import reverse  # To generate URLS by reversing URL patterns
@@ -38,7 +40,7 @@ class Stories(models.Model):
 class Post(models.Model):
     """Model representing a book (but not a specific copy of a book)."""
     title = models.CharField(max_length=200)
-    photo_or_video = models.FileField(upload_to='post_file', null=True)
+    photo_or_video = models.FileField(upload_to='post_file', null=True,  blank=True)
 
     # Foreign Key used because book can only have one author, but authors can have multiple books
     # Author as a string rather than object because it hasn't been declared yet in file.
@@ -47,11 +49,11 @@ class Post(models.Model):
                             unique=True,
                             help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn'
                                       '">ISBN number</a>')
-    imprint = models.TextField(null=True)
-    articles_type = models.ForeignKey('ArticlesType', on_delete=models.RESTRICT, null=True)
+    imprint = models.TextField(null=True,  blank=True)
+    articles_type = models.ForeignKey('ArticlesType', on_delete=models.RESTRICT, null=True, blank=True)
     # ManyToManyField used because a genre can contain many books and a Book can cover many genres.
     # Genre class has already been defined so we can specify the object above.
-    publish_date = models.DateField(null=True, blank=True)
+    publish_date = models.DateField(default=timezone.now)
     LOAN_STATUS = (
         ('h', 'Hidden'),
         ('a', 'Available'),
@@ -67,7 +69,7 @@ class Post(models.Model):
         help_text='Book availability')
 
     class Meta:
-        ordering = ['title']
+        ordering = ['-publish_date']
 
     def __str__(self):
         """String for representing the Model object."""

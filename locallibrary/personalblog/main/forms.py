@@ -79,3 +79,16 @@ class CommentForm(ModelForm):
                 'placeholder': 'Текст комментария',
             })
         }
+
+
+class CreateLittlePostForm(ModelForm):
+    class Meta:
+        model = Post
+        fields = ('summary',)
+
+        widgets = {
+            'summary': Textarea(attrs={
+                'class': 'add-post-textarea',
+                'placeholder': 'Напишити что-нибуть',
+            })
+        }

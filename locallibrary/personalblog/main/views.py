@@ -1,3 +1,5 @@
+import random
+
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -9,7 +11,7 @@ from django.utils.timesince import timesince
 from django.views.generic import FormView
 from django.views.generic.detail import SingleObjectMixin
 
-from .forms import EditPostForm, EditWorkForm, CommentForm
+from .forms import EditPostForm, EditWorkForm, CommentForm, CreateLittlePostForm
 from .models import Post, Stories, Work, ArticleTypeHeader, ArticlesType, Comment
 from django.core.paginator import Paginator
 from django.views import generic
@@ -19,19 +21,39 @@ from .templatetags.main_tags import time_filter
 Profile = apps.get_model('accounts', 'Profile')
 
 
-def index(request):
-    post_model = Post.objects.all().filter(status__in=['a', 'l'] )
-    stories_model = Stories.objects.all()
-    paginator = Paginator(post_model, 5)
+class Index(generic.ListView, FormView):
+    model = Post
+    form_class = CreateLittlePostForm
+    paginate_by = 5
+    template_name = 'main/index.html'
 
-    page_number = request.GET.get('page')  # new
-    page_obj = paginator.get_page(page_number)  # changed
-    context = {
-        'story': stories_model,
-        'page_obj': page_obj
-    }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['stories_list'] = Stories.objects.all()
+        context['form'] = CreateLittlePostForm()
 
-    return render(request, 'main/index.html', context=context)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.status = 'l'
+        post.title = 'None'
+        isbn = random.randint(1, 1000000000000)
+        post = Post.objects.all()
+
+        post.isbn = isbn
+        post.save()
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('home')
+
+    def get_queryset(self):
+        return Post.objects.filter(status__in=['a', 'l'])
 
 
 class PostDisplay(generic.DetailView):

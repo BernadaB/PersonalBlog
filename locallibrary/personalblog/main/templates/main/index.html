@@ -3,9 +3,9 @@
 {% block body %}
 
 
-{% if story %}
+{% if stories_list %}
   <div class="stories">
-    {% for story_item in story %}
+    {% for story_item in stories_list %}
 
 
     <div class="stories-item" data-modal="story-modal">
@@ -25,14 +25,10 @@
 
 <!--Add post-->
 <div class="add-post">
-  <form action="" class="add-post-form">
-    <textarea
-      class="add-post-textarea"
-      name="add-post"
-      placeholder="Напишити что-нибуть"
-      data-autoresize
-    ></textarea>
-    <div class="add-post-form-actions">
+  <form class="add-post-form" method="post">
+    {% csrf_token %}
+    {{ form.summary }}
+      <div class="add-post-form-actions">
       <label class="add-post-file" for="add-post-file">
         <input type="file" id="add-post-file" />
       </label>
@@ -43,8 +39,8 @@
   </form>
 </div>
 
-{% if page_obj %}
-  {% for post_item in page_obj %}
+
+  {% for post_item in object_list %}
     <div class="post">
       {% if post_item.status == 'a' %}
       <div class="post-header post-header--preview">
@@ -74,7 +70,7 @@
       </div>
     </div>
   {% endfor %}
-{% endif %}
+
 
 <ul class="pagination">
 
